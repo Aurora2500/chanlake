@@ -1,0 +1,20 @@
+### Boards
+
+https://a.4cdn.org/boards.json
+
+### Catalog
+
+http://a.4cdn.org/lgbt/catalog.json
+
+### Archives
+
+http://a.4cdn.org/lgbt/archive.json
+
+### Threads
+
+http://a.4cdn.org/lgbt/threads.json
+
+### thread
+@thread=31639380
+
+http://a.4cdn.org/lgbt/thread/{{thread}}.json

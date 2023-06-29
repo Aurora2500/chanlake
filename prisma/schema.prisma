@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://chanlake@localhost:5432/chanlake"
+}
+
+model Thread {
+  id          Int          @id
+  subject     String?
+  createdAt   DateTime
+  archivedAt  DateTime
+  posts       Post[]
+  threadFetch threadFetch?
+}
+
+model Post {
+  id         Int         @id
+  content    String?
+  threadId   Int
+  thread     Thread      @relation(fields: [threadId], references: [id])
+  createdAt  DateTime
+  tripId     Int?
+  trip       Trip?       @relation(fields: [tripId], references: [id])
+  replyingTo PostReply[] @relation("reply ref")
+  repliedBy  PostReply[] @relation("reply post")
+}
+
+model PostReply {
+  postId     Int
+  refId      Int
+  post       Post @relation("reply post", fields: [postId], references: [id])
+  references Post @relation("reply ref", fields: [refId], references: [id])
+
+  @@id([postId, refId])
+}
+
+model Trip {
+  id     Int     @id @default(autoincrement())
+  name   String
+  trip   String?
+  secure Boolean @default(false)
+  posts  Post[]
+
+  @@unique([name, trip])
+}
+
+model archivedFetch {
+  id            Int           @id @default(autoincrement())
+  timestamp     DateTime      @default(now())
+  numberThreads Int
+  threadFetch   threadFetch[]
+}
+
+model threadFetch {
+  id        Int           @id
+  timestamp DateTime      @default(now())
+  thread    Thread        @relation(fields: [id], references: [id])
+  archive   archivedFetch @relation(fields: [archiveId], references: [id])
+  archiveId Int
+}
