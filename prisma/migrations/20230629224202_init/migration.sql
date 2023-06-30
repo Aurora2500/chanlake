@@ -31,7 +31,7 @@ CREATE TABLE "PostReply" (
 CREATE TABLE "Trip" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "trip" TEXT,
+    "trip" TEXT NOT NULL,
     "secure" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Trip_pkey" PRIMARY KEY ("id")
@@ -54,6 +54,9 @@ CREATE TABLE "threadFetch" (
 
     CONSTRAINT "threadFetch_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Trip_name_trip_key" ON "Trip"("name", "trip");
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_threadId_fkey" FOREIGN KEY ("threadId") REFERENCES "Thread"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

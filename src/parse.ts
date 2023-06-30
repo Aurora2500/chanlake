@@ -21,6 +21,20 @@ const charMap: Record<string, string> = {
 
 const re = /&(?:([A-Za-z]+)|#(\d+));/g;
 
+const cleanText = (text: string): string => {
+	re.lastIndex = 0;
+	let match: RegExpExecArray | null;
+	while (match = re.exec(text)) {
+		if (match[1] !== undefined) {
+			text = text.replaceAll(match[0], charMap[match[1]] || "");
+		} else {
+			text = text.replaceAll(match[0], String.fromCharCode(parseInt(match[2])));
+		}
+		re.lastIndex = match.index + 1;
+	}
+	return text;
+}
+
 const reLink = /<a href="(?:\/[a-z0-9]+\/thread\/\d+)?#p\d+" class="quotelink">&gt;&gt;(\d+)<\/a>/g;
 
 type ParsedPost = {
@@ -43,21 +57,12 @@ export const parse = (text: string): ParsedPost => {
 		text = text.replaceAll(replyMatch[0], `(${replyMatch[1]})`);
 		reLink.lastIndex = replyMatch.index + 1;
 	}
-	
+
 	// remove span tags
 	text = text.replaceAll(/<span class="quote">/g, "");
 	text = text.replaceAll(/<\/span>/g, "");
-	
-	re.lastIndex = 0;
-	let match: RegExpExecArray | null;
-	while (match = re.exec(text)) {
-		if(match[1] !== undefined) {
-			text = text.replaceAll(match[0], charMap[match[1]] || "");
-		} else {
-			text = text.replaceAll(match[0], String.fromCharCode(parseInt(match[2])));
-		}
-		re.lastIndex = match.index + 1;
-	}
+
+	text = cleanText(text);
 
 	return {
 		text,
@@ -65,10 +70,14 @@ export const parse = (text: string): ParsedPost => {
 	};
 }
 
+export type Trip = {
+	name: string,
+	tripcode: string,
+}
+
 export type Post = {
 	id: number,
-	name: string | null,
-	trip?: string,
+	trip?: Trip,
 	content: string,
 	replying: number[],
 	createdAt: Date,
@@ -92,11 +101,14 @@ export const parseThread = (posts: ChanPost[]): Thread => {
 		createdAt: new Date(op.time * 1000),
 		archivedAt: new Date(op.archived_on! * 1000),
 		posts: posts.map(post => {
+			const trip: Trip | undefined = (post.trip === undefined && post.name === 'Anonymous') ? undefined : {
+				name: cleanText(post.name || ""),
+				tripcode: post.trip || "",
+			}
 			const p = parse(post.com || "");
 			return {
 				id: post.no,
-				name: (post.name !== 'Anonymous' || post.trip)? post.name : null,
-				trip: post.trip || undefined,
+				trip,
 				content: p.text,
 				replying: p.replies,
 				createdAt: new Date(post.time * 1000),

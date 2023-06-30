@@ -1,6 +1,6 @@
 import got from 'got';
 import { z } from 'zod';
-import {createThrottle} from './ratelimit.js';
+import { createThrottle } from './ratelimit.js';
 import { parseThread } from './parse.js';
 
 const threadListSchema = z.array(
@@ -21,7 +21,7 @@ const threadSchema = z.object({
 		z.object({
 			no: z.number(),
 			time: z.number(),
-			name: z.string(),
+			name: z.string().optional(),
 			trip: z.string().optional(),
 			sub: z.string().optional(),
 			com: z.string().optional(),
@@ -51,18 +51,24 @@ const get = async (url: string) => {
 }
 
 export const threadList = async (board: string) => {
-	const {body} = await get(`http://a.4cdn.org/${board}/threads.json`);
+	const { body } = await get(`http://a.4cdn.org/${board}/threads.json`);
 	const data = threadListSchema.parse(JSON.parse(body));
 	return data.flatMap(page => page.threads);
 };
 
 export const thread = async (board: string, id: number) => {
-	const {body} = await get(`http://a.4cdn.org/${board}/thread/${id}.json`);
-	const parsed = threadSchema.parse(JSON.parse(body));
-	return parseThread(parsed.posts);
+	const { body } = await get(`http://a.4cdn.org/${board}/thread/${id}.json`);
+	try {
+		const parsed = threadSchema.parse(JSON.parse(body));
+		return parseThread(parsed.posts);
+	} catch (e) {
+		console.error(`Failed to parse thread ${id} on board ${board}`)
+		console.error(e);
+	}
+	throw new Error(`Failed to parse thread ${id} on board ${board}`);
 };
 
 export const archived = async (board: string) => {
-	const {body} = await get(`http://a.4cdn.org/${board}/archive.json`);
+	const { body } = await get(`http://a.4cdn.org/${board}/archive.json`);
 	return archivedSchema.parse(JSON.parse(body));
 }
