@@ -96,7 +96,7 @@ export const parseThread = (posts: ChanPost[]): Thread => {
 	const op = posts[0];
 
 	return {
-		subject: op.sub,
+		subject: op.sub === undefined ? undefined : cleanText(op.sub),
 		ips: op.unique_ips!,
 		createdAt: new Date(op.time * 1000),
 		archivedAt: new Date(op.archived_on! * 1000),
