@@ -13,31 +13,50 @@ datasource db {
 model Thread {
   id          Int          @id
   subject     String?
-  createdAt   DateTime
-  archivedAt  DateTime
+  createdAt   DateTime     @map("created_at")
+  archivedAt  DateTime     @map("archived_at")
   posts       Post[]
   threadFetch threadFetch?
+
+  @@map("threads")
 }
 
 model Post {
   id         Int         @id
   content    String?
-  threadId   Int
+  threadId   Int         @map("thread_id")
   thread     Thread      @relation(fields: [threadId], references: [id])
-  createdAt  DateTime
-  tripId     Int?
+  createdAt  DateTime    @map("created_at")
+  tripId     Int?        @map("trip_id")
   trip       Trip?       @relation(fields: [tripId], references: [id])
   replyingTo PostReply[] @relation("reply post")
   repliedBy  PostReply[] @relation("reply ref")
+  image      Image?
+
+  @@map("posts")
 }
 
 model PostReply {
-  postId     Int
-  refId      Int
+  postId     Int  @map("post_id")
+  refId      Int  @map("ref_id")
   post       Post @relation("reply post", fields: [postId], references: [id])
   references Post @relation("reply ref", fields: [refId], references: [id])
 
   @@id([postId, refId])
+  @@map("post_replies")
+}
+
+model Image {
+  postId    Int    @id @map("post_id")
+  post      Post   @relation(fields: [postId], references: [id])
+  filename  String
+  extension String
+  md5       String
+  filesize  Int    @map("file_size")
+  width     Int
+  height    Int
+
+  @@map("images")
 }
 
 model Trip {
@@ -48,13 +67,16 @@ model Trip {
   posts  Post[]
 
   @@unique([name, trip])
+  @@map("trips")
 }
 
 model archivedFetch {
   id            Int           @id @default(autoincrement())
   timestamp     DateTime      @default(now())
-  numberThreads Int
+  numberThreads Int           @map("number_threads")
   threadFetch   threadFetch[]
+
+  @@map("archived_fetches")
 }
 
 model threadFetch {
@@ -62,5 +84,7 @@ model threadFetch {
   timestamp DateTime      @default(now())
   thread    Thread        @relation(fields: [id], references: [id])
   archive   archivedFetch @relation(fields: [archiveId], references: [id])
-  archiveId Int
+  archiveId Int           @map("archive_id")
+
+  @@map("thread_fetches")
 }

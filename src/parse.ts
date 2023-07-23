@@ -78,9 +78,19 @@ export type Trip = {
 export type Post = {
 	id: number,
 	trip?: Trip,
+	image?: Image,
 	content: string,
 	replying: number[],
 	createdAt: Date,
+}
+
+export type Image = {
+	filename: string,
+	extension: string,
+	filesize: number,
+	width: number,
+	height: number,
+	md5: string,
 }
 
 export type Thread = {

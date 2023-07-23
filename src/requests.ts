@@ -27,6 +27,10 @@ const threadSchema = z.object({
 			com: z.string().optional(),
 			filename: z.string().optional(),
 			ext: z.string().optional(),
+			w: z.number().optional(),
+			h: z.number().optional(),
+			md5: z.string().optional(),
+			fsize: z.number().optional(),
 			unique_ips: z.number().optional(),
 			archived_on: z.number().optional(),
 		})

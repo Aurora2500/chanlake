@@ -85,6 +85,16 @@ const fetchData = async () => {
 									}
 								}
 							} : undefined,
+							image: post.image ? {
+								create: {
+									filename: post.image.filename,
+									extension: post.image.extension,
+									filesize: post.image.filesize,
+									width: post.image.width,
+									height: post.image.height,
+									md5: post.image.md5,
+								}
+							} : undefined,
 						})),
 					}
 				}
