@@ -115,10 +115,21 @@ export const parseThread = (posts: ChanPost[]): Thread => {
 				name: cleanText(post.name || ""),
 				tripcode: post.trip || "",
 			}
+
+			const image: Image | undefined = post.filename === undefined ? undefined : {
+				filename: post.filename,
+				extension: post.ext!,
+				filesize: post.fsize!,
+				width: post.w!,
+				height: post.h!,
+				md5: post.md5!,
+			};
+
 			const p = parse(post.com || "");
 			return {
 				id: post.no,
 				trip,
+				image,
 				content: p.text,
 				replying: p.replies,
 				createdAt: new Date(post.time * 1000),
